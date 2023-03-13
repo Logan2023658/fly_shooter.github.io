@@ -1,0 +1,16 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  .game-container {
+    position: relative;
+    width: 400px;
+    height: 600px;
+    background-color: black;
+    border: 5px solid grey;
+  }
+  

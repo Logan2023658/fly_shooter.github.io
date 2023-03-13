@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> Dodger </title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+		}
+
+		canvas {
+			border: solid 3px gray;
+			display: block;
+			margin: 0 auto;
+			background-color: white;
+		}
+	</style>
+</head>
+<body onload="setup()">
+	<canvas id="canvas" width="400" height="950"></canvas>
+
+	<script>
+		let canvas;
+		let ctx;
+		let player;
+		let playerSpeed = 6;
+		let bulletSpeed = 10;
+		let bullets = [];
+		let enemySpeed = 3;
+		let enemies = [];
+
+		function setup() {
+			canvas = document.getElementById("canvas");
+			ctx = canvas.getContext("2d");
+
+			player = {
+				x: canvas.width / 2,
+				y: canvas.height - 50,
+				width: 30,
+				height: 30,
+				moveLeft: false,
+				moveRight: false,
+				moveUp: false,
+				moveDown: false
+			};
+
+			document.addEventListener("keydown", keyDownHandler, false);
+			document.addEventListener("keyup", keyUpHandler, false);
+
+			setInterval(draw, 10);
+		}
+
+		function drawPlayer() {
+			ctx.beginPath();
+			ctx.rect(player.x, player.y, player.width, player.height);
+			ctx.fillStyle = "blue";
+			ctx.fill();
+			ctx.closePath();
+		}
+
+		function drawBullets() {
+			for (let i = 0; i < bullets.length; i++) {
+				ctx.beginPath();
+				ctx.rect(bullets[i].x, bullets[i].y, 10, 10);
+				ctx.fillStyle = "red";
+				ctx.fill();
+				ctx.closePath();
+			}
+		}
+
+		function drawEnemies() {
+			for (let i = 0; i < enemies.length; i++) {
+				ctx.beginPath();
+				ctx.rect(enemies[i].x, enemies[i].y, 30, 30);
+				ctx.fillStyle = "black";
+				ctx.fill();
+				ctx.closePath();
+			}
+		}
+
+		function keyDownHandler(event) {
+  if (event.key == "Left" || event.key == "ArrowLeft") {
+    player.moveLeft = true;
+  } else if (event.key == "Right" || event.key == "ArrowRight") {
+    player.moveRight = true;
+  } else if (event.key == "Up" || event.key == "ArrowUp") {
+    player.moveUp = true;
+  } else if (event.key == "Down" || event.key == "ArrowDown") {
+    player.moveDown = true;
+  } else if (event.key == "z") {
+    bullets.push({
+      x: player.x + player.width / 2 - 5,
+      y: player.y,
+      speed: 10,
+      size: 5,
+      color: "red"
+    });
+  } else if (event.key == "x") {
+    bullets.push({
+      x: player.x + player.width / 2 - 5,
+      y: player.y,
+      speed: 15,
+      size: 10,
+      color: "yellow"
+    });
+  }
+}
+
+
+		function keyUpHandler(event) {
+			if (event.key == "Left" || event.key == "ArrowLeft") {
+				player.moveLeft = false;
+			} else if (event.key == "Right" || event.key == "ArrowRight") {
+				player.moveRight = false;
+			} else if (event.key == "Up" || event.key == "ArrowUp") {
+				player.moveUp = false;
+			} else if (event.key == "Down" || event.key == "ArrowDown") {
+				player.moveDown = false;
+			}
+		}
+
+    function movePlayer() {
+			if (player.moveLeft && player.x > 0) {
+				player.x -= playerSpeed;
+			} else if (player.moveRight && player.x < canvas.width - player.width) {
+				player.x += playerSpeed;
+			} else if (player.moveUp && player.y > 0) {
+				player.y -= playerSpeed;
+			} else if (player.moveDown && player.y < canvas.height - player.height) {
+				player.y += playerSpeed;
+			}
+		}
+
+		function moveBullets() {
+			for (let i = 0; i < bullets.length; i++) {
+				bullets[i].y -= bullets[i].speed;
+				if (bullets[i].y < 0) {
+					bullets.splice(i, 1);
+				}
+			}
+		}
+
+		function moveEnemies() {
+			for (let i = 0; i < enemies.length; i++) {
+				enemies[i].y += enemySpeed;
+				if (enemies[i].y > canvas.height) {
+					enemies.splice(i, 1);
+				}
+			}
+		}
+
+		function spawnEnemies() {
+			let rand = Math.random();
+			if (rand < 0.03) {
+				enemies.push({
+					x: Math.random() * (canvas.width - 20),
+					y: 0,
+					width: 20,
+					height: 20
+				});
+			}
+		}
+
+		function detectCollision() {
+			for (let i = 0; i < bullets.length; i++) {
+				for (let j = 0; j < enemies.length; j++) {
+					if (
+						bullets[i].x < enemies[j].x + enemies[j].width &&
+						bullets[i].x + 10 > enemies[j].x &&
+						bullets[i].y < enemies[j].y + enemies[j].height &&
+						bullets[i].y + 10 > enemies[j].y
+					) {
+						bullets.splice(i, 1);
+						enemies.splice(j, 1);
+					}
+				}
+			}
+		}
+
+		function draw() {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+			movePlayer();
+			moveBullets();
+			moveEnemies();
+			spawnEnemies();
+			detectCollision();
+
+			drawPlayer();
+			drawBullets();
+			drawEnemies();
+		}
+	</script>
+</body>
+</html>
